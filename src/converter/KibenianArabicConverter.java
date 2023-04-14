@@ -45,6 +45,10 @@ public class KibenianArabicConverter {
 
 
         } catch (Exception e) {
+            if(Pattern.matches("[^LXVI_]", number)) {
+                throw new MalformedNumberException(number + " contains invalid characters");
+            }
+
             for (int i = 0; i < number.length(); i++) {
                 if (Character.isLowerCase(number.charAt(i))) {
                     throw new MalformedNumberException(number +" has lowercase hence is not Kibenian");
@@ -92,13 +96,14 @@ public class KibenianArabicConverter {
                         break;
                 }
 
-
+                total += prevKibNum.value;
 
                 for (int i = 1; i < number.length(); i++) {
-                    prev = number.charAt(i-1);
-                    current = number.charAt(i);
+                    /*prev = number.charAt(i-1);
+                    current = number.charAt(i);*/
+                    currentKibNum = new kibNum(number.charAt(i));
 
-                    switch (current) {
+                    switch (currentKibNum.kib) {
                         case ('L'):
                             totalLs++;
                             currentKibNum = new kibNum('L');
@@ -125,6 +130,7 @@ public class KibenianArabicConverter {
                             break;
                     }
 
+                    // Checks for number of each character
                     if (totalLs > 1) {
                         throw new MalformedNumberException("Only 1 L allowed per group");
                     }
@@ -141,6 +147,7 @@ public class KibenianArabicConverter {
                         throw new MalformedNumberException("Only two underscores allowed");
                     }
 
+                    // Checks for order of characters
                     if (prevKibNum.kib == 'X' && (currentKibNum.value > prevKibNum.value)) {
                         throw new MalformedNumberException("Bad number");
                     }
@@ -170,11 +177,44 @@ public class KibenianArabicConverter {
      *
      * @return An arabic value
      */
-    public int toArabic() {
+    public int toArabic() throws MalformedNumberException {
         // TODO Fill in the method's body
-        try {
-            int Integer.
+        if(Pattern.matches("[1234567890]", number)) {
+            throw new MalformedNumberException(number + " is not a Kibenian number");
         }
+        int num = 0;
+        int subset = 0;
+
+        kibNum current;
+        boolean added = true;
+        for (int i = 0; i < number.length(); i++) {
+             current = new kibNum(number.charAt(i));
+
+             if(current.value != 0) {
+                 // not _
+                 subset += current.value;
+             } else {
+                 if (number.length() - i+1 != 0) {
+                     if (number.charAt(i) == '_') {
+                         subset *= 3600;
+                         i++;
+                         num += subset;
+                         subset = 0;
+                     }
+                     else subset *= 60;
+                     num+= subset;
+                     subset = 0;
+                 } else {
+                     subset *= 60;
+                     num += subset;
+                     subset = 0;
+                 }
+             }
+
+
+        }
+
+
         return 1;
     }
 
