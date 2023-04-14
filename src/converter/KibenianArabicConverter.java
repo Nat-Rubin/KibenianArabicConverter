@@ -143,8 +143,8 @@ public class KibenianArabicConverter {
                     else if (totalIs > 4) {
                         throw new MalformedNumberException("Too many Is in a row");
                     }
-                    else if (totalUnder > 2) {
-                        throw new MalformedNumberException("Only two underscores allowed");
+                    else if (totalUnder > 3) {
+                        throw new MalformedNumberException("Only consecutive allowed");
                     }
 
                     // Checks for order of characters
@@ -177,45 +177,48 @@ public class KibenianArabicConverter {
      *
      * @return An arabic value
      */
-    public int toArabic() throws MalformedNumberException {
+    public int toArabic() {
         // TODO Fill in the method's body
-        if(Pattern.matches("[1234567890]", number)) {
-            throw new MalformedNumberException(number + " is not a Kibenian number");
-        }
         int num = 0;
-        int subset = 0;
+        try {
+            if (Pattern.matches("[1234567890]", number)) {
+                throw new MalformedNumberException(number + " is not a Kibenian number");
+            }
 
-        kibNum current;
-        boolean added = true;
-        for (int i = 0; i < number.length(); i++) {
-             current = new kibNum(number.charAt(i));
+            int subset = 0;
 
-             if(current.value != 0) {
-                 // not _
-                 subset += current.value;
-             } else {
-                 if (number.length() - i+1 != 0) {
-                     if (number.charAt(i) == '_') {
-                         subset *= 3600;
-                         i++;
-                         num += subset;
-                         subset = 0;
-                     }
-                     else subset *= 60;
-                     num+= subset;
-                     subset = 0;
-                 } else {
-                     subset *= 60;
-                     num += subset;
-                     subset = 0;
-                 }
-             }
+            kibNum current;
+            for (int i = 0; i < number.length(); i++) {
+                current = new kibNum(number.charAt(i));
 
+                if (current.value != 0) {
+                    // not _
+                    subset += current.value;
+                } else {
+                    if (number.length() - i + 1 != 0) {
+                        if (number.charAt(i) == '_') {
+                            subset *= 3600;
+                            i++;
+                            num += subset;
+                            subset = 0;
+                        } else subset *= 60;
+                        num += subset;
+                        subset = 0;
+                    } else {
+                        subset *= 60;
+                        num += subset;
+                        subset = 0;
+                    }
+                }
+            }
 
+            num += subset;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
 
-        return 1;
+        return num;
     }
 
     /**
@@ -228,11 +231,40 @@ public class KibenianArabicConverter {
         try{
 
         }
-        return "I";
+    }
+
+    private StringBuilder calculateSubSection(int num) {
+        StringBuilder subSection = new StringBuilder();
+        int XRem;
+        if (num / 50 == 1) {
+            subSection.append('L');
+            num -= 50;
+        }
+
+        int remainder = num / 10;
+        while (remainder > 0) {
+            subSection.append('X');
+            num -= 10;
+            remainder--;
+        }
+
+        if (num / 5 == 1) {
+            subSection.append('V');
+            num -= 5;
+        }
+
+        while (num > 0) {
+            subSection.append('I');
+            num--;
+
+        }
+
+        return subSection;
+
     }
 
     private class kibNum {
-        private char kib;
+        char kib;
         @Getter
         private int value;
 

@@ -35,4 +35,80 @@ public class ConverterTests {
     }
 
     // TODO Add more test cases
+
+
+    @Test
+    public void ArabicToKibenianSampleTest2() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("215999");
+        assertEquals(converter.toKibenian(), "LVIIII__LVIIII_LVIIII");
+    }
+    @Test
+    public void ArabicToKibenianSampleTest3() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("215998");
+        assertEquals(converter.toKibenian(), "LVIIII__LVIIII_LVIII");
+    }
+    @Test
+    public void ArabicToKibenianSampleTest4() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("60");
+        assertEquals(converter.toKibenian(), "LVIIII_I");
+    }
+    @Test
+    public void ArabicToKibenianSampleTest5() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("3605");
+        assertEquals(converter.toKibenian(), "LVIIII__V");
+    }
+
+
+    @Test
+    public void ArabicToKibenianSampleTest6() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("5");
+        assertEquals(converter.toKibenian(), "V");
+    }
+    @Test
+    public void ArabicToKibenianSampleTest7() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("10");
+        assertEquals(converter.toKibenian(), "X");
+    }
+    @Test
+    public void ArabicToKibenianSampleTest8() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("9");
+        assertEquals(converter.toKibenian(), "LVIIII");
+    }
+
+    @Test
+    public void ArabicToKibenianSampleTest9() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("215999");
+        assertEquals(converter.toKibenian(), "LVIIII__LVIIII_LVIIII");
+    }
+
+    @Test
+    public void ArabicToKibenianSampleTest10() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("215999");
+        assertEquals(converter.toKibenian(), "LVIIII__LVIIII_LVIIII");
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    //Kibenian to Arabic tests
+    @Test
+    public void KibenianToArabicSampleTest1() throws MalformedNumberException, ValueOutOfBoundsException {
+        KibenianArabicConverter converter = new KibenianArabicConverter("LVIII__LVIII");
+        assertEquals(converter.toArabic(), "LVIIII__V");
+    }
+
+
+
 }
