@@ -27,26 +27,32 @@ public class KibenianArabicConverter {
      * to the rules of the Kibenian number system or any other error in Arabic number input.
      */
     public KibenianArabicConverter(String number) throws MalformedNumberException, ValueOutOfBoundsException {
+    // TODO check to see if the number is valid, then set it equal to the string
 
+       if(Pattern.matches("((\\+|-)?([0-9]+)(\\.[0-9]+)?)|((\\+|-)?\\.?[0-9]+)" ,number)) {
 
-
-        // TODO check to see if the number is valid, then set it equal to the string
-        try {
-           double arabicNum = Double.parseDouble(number);
-           if (arabicNum != Math.floor(arabicNum)) {
-               throw new MalformedNumberException("Double " + arabicNum + " not accepted");
+           for (int i = 0; i < number.length(); i++) {
+               if (number.charAt(i) == '.')
+                throw new MalformedNumberException("Double " + number + " not accepted");
            }
+
+           int arabicNum = Integer.parseInt(number);
+
            if (arabicNum > 215999 || arabicNum < 1) {
-               throw new ValueOutOfBoundsException("Double "+ arabicNum+" not accepted");
+               throw new ValueOutOfBoundsException(arabicNum + " not accepted, too big or too large");
            }
-           if ((int) number.charAt(0) == 0) {
+
+           if (number.charAt(0) == '0') {
                throw new MalformedNumberException("Number " + arabicNum + " contains at least one leading 0");
            }
 
+       } else {
+            if (number.length() == 0) {
+                throw new StringIndexOutOfBoundsException("You entered an empty string!");
+            }
 
-        } catch (Exception e) {
             if(Pattern.matches("[^LXVI_]", number)) {
-                throw new MalformedNumberException(number + " contains invalid characters");
+                throw new MalformedNumberException(number + " contains illegal characters");
             }
 
             for (int i = 0; i < number.length(); i++) {
@@ -133,39 +139,38 @@ public class KibenianArabicConverter {
                     // Checks for number of each character
                     if (totalLs > 1) {
                         throw new MalformedNumberException("Only 1 L allowed per group");
-                    }
-                     else if(totalXs>4){
-                         throw new MalformedNumberException("Too many Xs in a row");
-                    }
-                    else if (totalVs > 1) {
+                    } else if (totalXs > 4) {
+                        throw new MalformedNumberException("Too many Xs in a row");
+                    } else if (totalVs > 1) {
                         throw new MalformedNumberException("Only 1 V allowed per group");
-                    }
-                    else if (totalIs > 4) {
+                    } else if (totalIs > 4) {
                         throw new MalformedNumberException("Too many Is in a row");
-                    }
-                    else if (totalUnder > 3) {
+                    } else if (totalUnder > 3) {
                         throw new MalformedNumberException("Only consecutive allowed");
                     }
 
                     // Checks for order of characters
                     if (prevKibNum.kib == 'X' && (currentKibNum.value > prevKibNum.value)) {
                         throw new MalformedNumberException("Bad number");
-                    }
-                    else if (prevKibNum.kib =='L'&& (currentKibNum.value>prevKibNum.value)) {
+                    } else if (prevKibNum.kib == 'L' && (currentKibNum.value > prevKibNum.value)) {
                         throw new MalformedNumberException("Bad number");
-                    }
-                    else if (prevKibNum.kib =='V'&& (currentKibNum.value>prevKibNum.value)){
+                    } else if (prevKibNum.kib == 'V' && (currentKibNum.value > prevKibNum.value)) {
                         throw new MalformedNumberException("Bad number");
-                    }
-                    else if (prevKibNum.kib == 'I' && (currentKibNum.value > prevKibNum.value)) {
+                    } else if (prevKibNum.kib == 'I' && (currentKibNum.value > prevKibNum.value)) {
                         throw new MalformedNumberException("Bad number");
                     } else {
 
                     }
+
+                    // Check total
+                    total = total + currentKibNum.value;
+
+                    if (total > 59) {
+                        throw new MalformedNumberException("Sub group total too large");
+                    }
                     prevKibNum = currentKibNum;
                 }
             }
-
 
         }
         this.number = number;
@@ -180,9 +185,8 @@ public class KibenianArabicConverter {
     public int toArabic() {
         // TODO Fill in the method's body
         int num = 0;
-        try {
-            if (Pattern.matches("[1234567890]", number)) {
-                throw new MalformedNumberException(number + " is not a Kibenian number");
+            if (Pattern.matches("\\d+", number)) {
+                return Integer.parseInt(number);
             }
 
             int subset = 0;
@@ -196,14 +200,35 @@ public class KibenianArabicConverter {
                     subset += current.value;
                 } else {
                     if (number.length() - i + 1 != 0) {
-                        if (number.charAt(i) == '_') {
-                            subset *= 3600;
-                            i++;
+                        if (number.length() != i+1) {
+                            if (number.charAt(i + 1) == '_') {
+                                subset *= 3600;
+                                i++;
+                                num += subset;
+                                subset = 0;
+                            } else {
+                                boolean exists = false;
+                                for (int j = i+1; j < number.length(); j++) {
+                                    if (number.charAt(j) == '_') {
+                                        subset *= 3600;
+                                        //i++;
+                                        num += subset;
+                                        subset = 0;
+                                        exists = true;
+                                        break;
+                                    }
+                                }
+                                if (!exists) {
+                                    subset *= 60;
+                                    num += subset;
+                                    subset = 0;
+                                }
+                            }
+                        } else {
+                            subset *= 60;
                             num += subset;
                             subset = 0;
-                        } else subset *= 60;
-                        num += subset;
-                        subset = 0;
+                        }
                     } else {
                         subset *= 60;
                         num += subset;
@@ -213,9 +238,6 @@ public class KibenianArabicConverter {
             }
 
             num += subset;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
 
 
         return num;
@@ -235,7 +257,6 @@ public class KibenianArabicConverter {
 
     private StringBuilder calculateSubSection(int num) {
         StringBuilder subSection = new StringBuilder();
-        int XRem;
         if (num / 50 == 1) {
             subSection.append('L');
             num -= 50;
